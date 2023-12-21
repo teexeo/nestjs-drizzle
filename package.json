@@ -1,0 +1,29 @@
+{
+  "name": "nestjs-drizzle",
+  "version": "0.0.4",
+  "description": "Nestjs Drizzle ORM Helper Module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "prepublish": "npm run build"
+  },
+  "keywords": [
+    "nestjs",
+    "drizzle",
+    "orm"
+  ],
+  "author": "SuleymanQ",
+  "license": "ISC",
+  "dependencies": {
+    "@nestjs/common": "^10.3.0",
+    "@types/node": "^20.10.5",
+    "drizzle-orm": "^0.29.1",
+    "mysql2": "^3.6.5",
+    "reflect-metadata": "^0.2.1",
+    "rimraf": "^5.0.5",
+    "rxjs": "^7.8.1",
+    "typescript": "^5.3.3"
+  },
+  "homepage": "https://github.com/teexeo/nestjs-drizzle.git"
+}
