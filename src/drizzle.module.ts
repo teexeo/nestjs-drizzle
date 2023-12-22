@@ -14,7 +14,7 @@ export class DrizzleModule {
       providers: [
         {
           provide: DrizzleService,
-          useValue: new DrizzleService(options.schema, connection),
+          useFactory: () => new DrizzleService(options.schema, connection),
         },
       ],
       exports: [DrizzleService],

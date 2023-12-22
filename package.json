@@ -1,6 +1,6 @@
 {
   "name": "nestjs-drizzle",
-  "version": "0.0.4",
+  "version": "0.5.2",
   "description": "Nestjs Drizzle ORM Helper Module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -20,7 +20,7 @@
     "@types/node": "^20.10.5",
     "drizzle-orm": "^0.29.1",
     "mysql2": "^3.6.5",
-    "reflect-metadata": "^0.2.1",
+    "reflect-metadata": "^0.1.14",
     "rimraf": "^5.0.5",
     "rxjs": "^7.8.1",
     "typescript": "^5.3.3"
