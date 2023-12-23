@@ -3,6 +3,7 @@
 > Currently only support mysql2
 
 ### Todo List
+
 - [x] mysql2
 - [ ] planetscale
 - [ ] postgresjs
@@ -104,11 +105,33 @@ this.drizzle.delete(users).where(eq(users.id, 10)).prepare();
 this.drizzle.insert(users, values).$dynamic;
 ```
 
+### Making get fn type safe
+
+```ts
+import type { Simplify } from "nestjs-drizzle";
+
+const userSelect = {
+  id: users.id,
+  name: users.name,
+};
+
+type UserSelectType = Simplify<typeof userSelect>;
+
+const response = await this.drizzle.get(users, {
+  select: userSelect,
+}) as UserSelectType[];
+// {
+//    id: number,
+//    name: string
+// }
+```
+
 ### Using query
 
 ```ts
 // first make DrizzleService to type safe
 import * as schema from "SCHEMA_PATH";
+
 @Injectable()
 export class AppService {
   constructor(
@@ -126,8 +149,6 @@ export class AppService {
   }
 }
 ```
-
-
 
 ### Bugs showcase
 
