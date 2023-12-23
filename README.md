@@ -133,4 +133,4 @@ export class AppService {
 
 > npm ERR! Found: reflect-metadata@0.2.1
 
-in package.json `reflect-metadata` change vertion to `^0.1.14`
+in package.json `reflect-metadata` change version to `^0.1.14`

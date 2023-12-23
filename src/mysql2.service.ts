@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { drizzle, type MySql2Database } from 'drizzle-orm/mysql2';
+import { drizzle, MySql2PreparedQueryHKT, type MySql2Database } from 'drizzle-orm/mysql2';
 import { From, GetDrizzleOptions, Mysql2Options } from './types';
-import { MySqlTable } from 'drizzle-orm/mysql-core';
+import { MySqlSelectBase, MySqlTable, SelectedFields } from 'drizzle-orm/mysql-core';
 
 @Injectable()
 export class DrizzleService<TSchema extends Record<string, unknown> = Record<string, never>> {
@@ -17,12 +17,12 @@ export class DrizzleService<TSchema extends Record<string, unknown> = Record<str
     }) as MySql2Database<TSchema>;
   }
 
-  get(from: From, props?: GetDrizzleOptions) {
+  get<T extends GetDrizzleOptions>(from: From, props?: T) {
     return this.db
       .select(props?.select)
       .from(from)
       .limit(props?.limit)
-      .offset(props?.offset);
+      .offset(props?.offset) as Omit<MySqlSelectBase<string, SelectedFields, "partial", MySql2PreparedQueryHKT, Record<string, "not-null">, false, "limit" | "offset", T['select'][], T['select']>, "limit" | "offset">;
   }
 
   update<T extends MySqlTable>(table: T, set: Partial<T['_']['inferInsert']>) {
