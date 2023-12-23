@@ -25,7 +25,7 @@ export class DrizzleService<TSchema extends Record<string, unknown> = Record<str
       .offset(props?.offset);
   }
 
-  update<T extends MySqlTable>(table: T, set: T['_']['inferInsert']) {
+  update<T extends MySqlTable>(table: T, set: Partial<T['_']['inferInsert']>) {
     return this.db.update(table).set(set)
   }
 
