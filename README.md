@@ -5,13 +5,13 @@
 ### Todo List
 
 - [x] mysql2
-- [ ] planetscale
 - [ ] postgresjs
 - [ ] node-postgres
 - [ ] supabase
+- [ ] sqlite
+- [ ] planetscale
 - [ ] neon
 - [ ] vercel postgres
-- [ ] sqlite
 - [ ] turso
 
 ```bash
@@ -22,11 +22,12 @@ npm install nestjs-drizzle
 
 ```ts
 import { ConfigModule } from '@nestjs/config';
-import { DrizzleModule } from 'nestjs-drizzle';
+import { DrizzleModule } from 'nestjs-drizzle/mysql';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    DrizzleModule.forMysql2({
+    DrizzleModule.forRoot({
       isGlobal: true,
       schema,
       pool: {
@@ -61,7 +62,7 @@ declare namespace NodeJS {
 
 ```ts
 import { Injectable } from "@nestjs/common";
-import { DrizzleService } from "nestjs-drizzle";
+import { DrizzleService } from "nestjs-drizzle/mysql";
 import { users } from "./drizzle";
 import { isNull } from "drizzle-orm";
 
@@ -78,7 +79,7 @@ export class AppService {
     return users;
   }
 
-  async getOneUsers(id: string) {
+  async getOneUser(id: string) {
     const [user] = await this.drizzle
       .get(users, {
         id: users.id,
@@ -101,7 +102,7 @@ this.drizzle.update(users, values).where(eq(users.id, 10));
 
 this.drizzle.delete(users).where(eq(users.id, 10));
 
-this.drizzle.query('users').findFirst();
+this.drizzle.query("users").findFirst();
 ```
 
 ### if you need to other features
@@ -119,6 +120,7 @@ this.drizzle.insert(users, values).$dynamic;
 ```ts
 // first make DrizzleService to type safe
 import * as schema from "SCHEMA_PATH";
+import { DrizzleService } from "nestjs-drizzle/mysql";
 
 @Injectable()
 export class AppService {
@@ -127,7 +129,7 @@ export class AppService {
   ) {}
 
   getUsers() {
-    this.drizzle.query('users').findMany({
+    this.drizzle.query("users").findMany({
       columns: {
         id: true,
         name: true,
