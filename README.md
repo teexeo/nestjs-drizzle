@@ -69,17 +69,24 @@ import { isNull } from "drizzle-orm";
 export class AppService {
   constructor(private readonly drizzle: DrizzleService) {}
 
-  async getUsers() {
-    return await this.drizzle
-      .get({
-        from: users,
-        select: {
-          id: users.id,
-          username: users.username,
-        },
-        limit: 10,
+  async getManyUsers() {
+    const users = await this.drizzle.get(users, {
+      id: users.id,
+      username: users.username,
+    });
+
+    return users;
+  }
+
+  async getOneUsers(id: string) {
+    const [user] = await this.drizzle
+      .get(users, {
+        id: users.id,
+        username: users.username,
       })
-      .where(isNull(users.deletedAt));
+      .where(eq(users.id, id));
+
+    return user;
   }
 }
 ```
@@ -93,37 +100,18 @@ this.drizzle.insert(users, values);
 this.drizzle.update(users, values).where(eq(users.id, 10));
 
 this.drizzle.delete(users).where(eq(users.id, 10));
+
+this.drizzle.query('users').findFirst();
 ```
 
 ### if you need to other features
 
 ```ts
-this.drizzle.db; // all orm in db
+this.drizzle.db; // main db
 
 this.drizzle.delete(users).where(eq(users.id, 10)).prepare();
 
 this.drizzle.insert(users, values).$dynamic;
-```
-
-### Making get fn type safe
-
-```ts
-import type { Simplify } from "nestjs-drizzle";
-
-const userSelect = {
-  id: users.id,
-  name: users.name,
-};
-
-type UserSelectType = Simplify<typeof userSelect>;
-
-const response = await this.drizzle.get(users, {
-  select: userSelect,
-}) as UserSelectType[];
-// {
-//    id: number,
-//    name: string
-// }
 ```
 
 ### Using query
@@ -139,7 +127,7 @@ export class AppService {
   ) {}
 
   getUsers() {
-    this.drizzle.db.query.users.findMany({
+    this.drizzle.query('users').findMany({
       columns: {
         id: true,
         name: true,
