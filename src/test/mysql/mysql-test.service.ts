@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { DrizzleService } from "../mysql";
+import { DrizzleService } from "../../mysql";
 import { users } from "./users.schema";
 
 export class MysqlTestService {

@@ -1,11 +1,9 @@
 ## Nest.js Drizzle
 
-> Currently only support mysql2
-
 ### Todo List
 
 - [x] mysql2
-- [ ] postgresjs
+- [x] postgresjs
 - [ ] node-postgres
 - [ ] supabase
 - [ ] sqlite
@@ -23,6 +21,7 @@ npm install nestjs-drizzle
 ```ts
 import { ConfigModule } from '@nestjs/config';
 import { DrizzleModule } from 'nestjs-drizzle/mysql';
+// import { DrizzleModule } from 'nestjs-drizzle/postgres'
 
 @Module({
   imports: [
