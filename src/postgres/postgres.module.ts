@@ -21,7 +21,13 @@ export class DrizzleModule {
     return this.createModule(
       {
         provide: DrizzleService,
-        useFactory: options.useFactory,
+        useFactory: async () => {
+          const { schema, connection } = await options.useFactory(
+            options.inject || []
+          );
+
+          return new DrizzleService(schema, postgres(connection));
+        },
       },
       options.isGlobal
     );

@@ -11,17 +11,9 @@ export interface Mysql2Options {
 
 export type Mysql2AsyncOptions = {
   isGlobal?: boolean;
-  /**
-   *
-   * ```ts
-   * {
-   *   async useFactory(configService: ConfigService) {
-   *    return registerAsync(schema, configService.get('DATABASE_URL'))
-   *   }
-   * }
-   * ```
-   * @param args any argument
-   * @returns DrizzleService
-   */
-  useFactory: (...args: any[]) => Promise<any>;
+  useFactory: (...args: any[]) => Promise<{
+    pool: PoolOptions;
+    schema: any;
+  }>;
+  inject?: any[];
 };

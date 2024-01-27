@@ -1,5 +1,3 @@
-import type { DrizzleService } from "./postgres.service";
-
 export interface PostgresOptions {
   /**
    * @default true
@@ -11,17 +9,6 @@ export interface PostgresOptions {
 
 export type PostgresAsyncOptions = {
   isGlobal?: boolean;
-  /**
-   *
-   * ```ts
-   * {
-   *   async useFactory(configService: ConfigService) {
-   *    return registerAsync(schema, configService.get('DATABASE_URL'))
-   *   }
-   * }
-   * ```
-   * @param args any argument
-   * @returns DrizzleService
-   */
-  useFactory: (...args: any[]) => Promise<any>;
+  useFactory: (...args: any[]) => Promise<{ connection: string; schema: any }>;
+  inject?: any[];
 };
