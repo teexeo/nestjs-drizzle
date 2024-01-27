@@ -1,6 +1,6 @@
 import { DynamicModule, Module } from "@nestjs/common";
 import { DrizzleService } from "./postgres.service";
-import { PostgresOptions } from "./types";
+import { PostgresAsyncOptions, PostgresOptions } from "./types";
 import postgres from "postgres";
 
 @Module({})
@@ -17,13 +17,11 @@ export class DrizzleModule {
     );
   }
 
-  static forAsyncRoot(options: PostgresOptions): DynamicModule {
-    const connection = postgres(options.connection);
-
+  static forAsyncRoot(options: PostgresAsyncOptions): DynamicModule {
     return this.createModule(
       {
         provide: DrizzleService,
-        useFactory: async () => new DrizzleService(options.schema, connection),
+        useFactory: options.useFactory,
       },
       options.isGlobal
     );

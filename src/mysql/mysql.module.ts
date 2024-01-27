@@ -1,6 +1,6 @@
 import { DynamicModule, Module } from "@nestjs/common";
 import { DrizzleService } from "./mysql.service";
-import { Mysql2Options } from "./types";
+import { Mysql2AsyncOptions, Mysql2Options } from "./types";
 
 @Module({})
 export class DrizzleModule {
@@ -17,14 +17,11 @@ export class DrizzleModule {
     );
   }
 
-  static forAsyncRoot(options: Mysql2Options): DynamicModule {
-    const mysql = require("mysql2/promise");
-    const connection = mysql.createPool(options.pool);
-
+  static forAsyncRoot(options: Mysql2AsyncOptions): DynamicModule {
     return this.createModule(
       {
         provide: DrizzleService,
-        useFactory: async () => new DrizzleService(options.schema, connection),
+        useFactory: options.useFactory,
       },
       options.isGlobal
     );

@@ -19,13 +19,10 @@ npm install nestjs-drizzle
 ### app.module.ts
 
 ```ts
-import { ConfigModule } from '@nestjs/config';
 import { DrizzleModule } from 'nestjs-drizzle/mysql';
-// import { DrizzleModule } from 'nestjs-drizzle/postgres'
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
     DrizzleModule.forRoot({
       isGlobal: true,
       schema,
@@ -41,17 +38,31 @@ import { DrizzleModule } from 'nestjs-drizzle/mysql';
 })
 ```
 
+### for async registeration
+
+```ts
+import { DrizzleModule, registerAsync } from 'nestjs-drizzle/postgres';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    DrizzleModule.forAsyncRoot({
+      isGlobal: true,
+      useFactory: async function (config: ConfigService) {
+        return registerAsync(schema, config.get('DATABASE_URL'))
+      }
+    }),
+  ]
+})
+```
+
 > I recomend to use `environment.d.ts` file for env type safety.
 
 ```ts
 declare namespace NodeJS {
   interface ProcessEnv {
     [key: string]: string | undefined;
-    DATABASE: string;
-    USER: string;
-    PASSWORD: string;
-    PORT: number;
-    HOST: string;
+    DATABASE_URL: string;
     // add more environment variables and their types here
   }
 }
