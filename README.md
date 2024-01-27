@@ -48,9 +48,10 @@ import { DrizzleModule, registerAsync } from 'nestjs-drizzle/postgres';
     ConfigModule.forRoot({ isGlobal: true }),
     DrizzleModule.forAsyncRoot({
       isGlobal: true,
-      useFactory: async function (config: ConfigService) {
-        return registerAsync(schema, config.get('DATABASE_URL'))
-      }
+      useFactory: async () => {
+        const config = new ConfigService();
+        return registerAsync(schema, config.get('DATABASE_URL'));
+      },
     }),
   ]
 })

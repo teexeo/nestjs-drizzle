@@ -21,6 +21,9 @@
     "emitDecoratorMetadata": true,
     "skipLibCheck": true
   },
+  "include": [
+    "**/*"
+  ],
   "exclude": [
     "node_modules",
     "src/test",
