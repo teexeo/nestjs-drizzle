@@ -22,7 +22,9 @@ export class DrizzleModule {
       {
         provide: DrizzleService,
         useFactory: async () => {
-          const injects = options.inject ? options.inject : [];
+          const injects = options.inject
+            ? options.inject.map((cls) => new cls())
+            : [];
           const { schema, pool } = await options.useFactory(...injects);
           const mysql = require("mysql2/promise");
           const connection = mysql.createPool(pool);

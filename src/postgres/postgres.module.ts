@@ -22,7 +22,9 @@ export class DrizzleModule {
       {
         provide: DrizzleService,
         useFactory: async () => {
-          const injects = options.inject ? options.inject : [];
+          const injects = options.inject
+            ? options.inject.map((cls) => new cls())
+            : [];
           const { schema, connection } = await options.useFactory(...injects);
 
           return new DrizzleService(schema, postgres(connection));
