@@ -16,10 +16,29 @@
 npm install nestjs-drizzle
 ```
 
+### For schema
+```ts
+// drizzle/schemas/users.ts
+import { pgTable, varchar, uuid, timestamp } from 'drizzle-orm/pg-core';
+
+export const users = pgTable('users', {
+  id: uuid('id').unique().primaryKey().defaultRandom(),
+
+  username: varchar('name', { length: 255 }).notNull(),
+  password: varchar('password', { length: 255 }).notNull(),
+  
+  // more schema
+});
+
+// drizzle/schema.ts 
+export * from './schemas/users.ts'
+```
+
 ### app.module.ts
 
 ```ts
 import { DrizzleModule } from 'nestjs-drizzle/mysql';
+import * as schema from 'src/drizzle/schema'
 
 @Module({
   imports: [
@@ -42,6 +61,7 @@ import { DrizzleModule } from 'nestjs-drizzle/mysql';
 
 ```ts
 import { DrizzleModule, registerAsync } from 'nestjs-drizzle/postgres';
+import * as schema from 'src/drizzle/schema'
 
 @Module({
   imports: [
@@ -130,7 +150,7 @@ this.drizzle.insert(users, values).$dynamic;
 
 ```ts
 // first make DrizzleService to type safe
-import * as schema from "SCHEMA_PATH";
+import * as schema from "src/drizzle/schema";
 import { DrizzleService } from "nestjs-drizzle/mysql";
 
 @Injectable()
