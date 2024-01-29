@@ -69,7 +69,8 @@ import * as schema from 'src/drizzle/schema'
     DrizzleModule.forAsyncRoot({
       isGlobal: true,
       useFactory: async (config: ConfigService) => ({
-        connection: config.get('DATABASE_URL')
+        connection: config.get('DATABASE_URL'),
+        schema,
       }),
       inject: [ConfigService]
     }),
