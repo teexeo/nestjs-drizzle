@@ -29,7 +29,7 @@ export class DrizzleService<
     "db",
     GetSelectTableName<T>,
     Simplify<TSelect>,
-    "single",
+    "partial",
     any
   > {
     return this.db.select(select as SelectedFields).from(from) as any;
