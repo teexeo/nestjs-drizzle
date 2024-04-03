@@ -6,7 +6,7 @@ import {
   MySqlTable,
   SelectedFields,
 } from "drizzle-orm/mysql-core";
-import { Simplify } from "drizzle-orm";
+import { getTableColumns, Simplify } from "drizzle-orm";
 import { GetSelectTableName } from "drizzle-orm/query-builders/select.types";
 
 @Injectable()
@@ -22,9 +22,16 @@ export class DrizzleService<
     }) as MySql2Database<TSchema>;
   }
 
-  get<T extends MySqlTable, TSelect extends SelectedFields>(
+  get<
+    T extends MySqlTable,
+    TSelect extends SelectedFields,
+    U extends "select" | "without" = "select"
+  >(
     from: T,
-    select: Simplify<T["$inferSelect"]> | TSelect | undefined = undefined
+    select: U extends "select"
+      ? Simplify<T["$inferSelect"]> | TSelect | undefined
+      : keyof Simplify<T["$inferSelect"]>[],
+    type: "select" | "without" = "select"
   ): CreateMySqlSelectFromBuilderMode<
     "db",
     GetSelectTableName<T>,
@@ -32,6 +39,18 @@ export class DrizzleService<
     "partial",
     any
   > {
+    if (type === "without") {
+      const columns = getTableColumns(from);
+      const keysOfSelect = Object.keys(select);
+      const FilteredSelect = Object.keys(columns)
+        .filter((x) => !keysOfSelect.includes(x))
+        .reduce((acc, key) => {
+          acc[key] = columns[key];
+          return acc;
+        }, {}) as SelectedFields;
+
+      return this.db.select(FilteredSelect).from(from) as any;
+    }
     return this.db.select(select as SelectedFields).from(from) as any;
   }
 

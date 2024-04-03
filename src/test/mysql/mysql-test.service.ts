@@ -8,22 +8,19 @@ export class MysqlTestService {
   ) {}
 
   async main() {
-    const other = await this.drizzle.query("users").findFirst({
-      columns: {
-        id: true,
-        name: true,
-      },
-    });
-
     const data = await this.drizzle
-      .get(users, {
-        id: users.id,
-        name: users.name,
-        age: users.age,
-        full_name: sql<string>`concat(${users.name}, ' ', ${users.age})`,
-      })
+      .get(
+        users,
+        {
+          id: users.id,
+          name: users.name,
+          age: users.age,
+          full_name: sql<string>`concat(${users.name}, ' ', ${users.age})`,
+        },
+        "without"
+      )
       .limit(10);
 
-    return [data, other];
+    return data;
   }
 }
