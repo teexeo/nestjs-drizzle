@@ -5,7 +5,7 @@
 - [x] mysql2
 - [x] postgresjs
 - [ ] node-postgres
-- [ ] supabase
+- [x] supabase
 - [ ] sqlite
 - [ ] planetscale
 - [ ] neon
@@ -26,11 +26,11 @@ export const users = pgTable('users', {
 
   username: varchar('name', { length: 255 }).notNull(),
   password: varchar('password', { length: 255 }).notNull(),
-  
+
   // more schema
 });
 
-// drizzle/schema.ts 
+// drizzle/schema.ts
 export * from './schemas/users.ts'
 ```
 
@@ -60,7 +60,7 @@ import * as schema from 'src/drizzle/schema'
 ### for async registeration
 
 ```ts
-import { DrizzleModule, registerAsync } from 'nestjs-drizzle/postgres';
+import { DrizzleModule } from 'nestjs-drizzle/postgres';
 import * as schema from 'src/drizzle/schema'
 
 @Module({
@@ -132,8 +132,8 @@ this.drizzle.insert(users, values);
 
 this.drizzle.update(users, values).where(eq(users.id, 10));
 // Increment | Decrement
-this.drizzle.update(users, { 
-  age: increment(users.age, 20) 
+this.drizzle.update(users, {
+  age: increment(users.age, 20)
 }).where(eq(users.id, 10));
 
 this.drizzle.delete(users).where(eq(users.id, 10));

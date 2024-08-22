@@ -8,6 +8,7 @@ import type {
   SelectedFields,
 } from "drizzle-orm/pg-core";
 import { GetSelectTableName } from "drizzle-orm/query-builders/select.types";
+import { Sql } from "postgres";
 
 @Injectable()
 export class DrizzleService<
@@ -15,10 +16,8 @@ export class DrizzleService<
 > {
   public db: PostgresJsDatabase<TSchema>;
 
-  constructor(schema: PostgresOptions["schema"], connection: any) {
-    this.db = drizzle(connection, {
-      schema,
-    }) as PostgresJsDatabase<TSchema>;
+  constructor(schema: PostgresOptions["schema"], connection: Sql) {
+    this.db = drizzle(connection, { schema }) as PostgresJsDatabase<TSchema>;
   }
 
   get<T extends PgTable, TSelect extends SelectedFields>(
@@ -33,11 +32,11 @@ export class DrizzleService<
     return this.db.select(select as SelectedFields).from(from) as any;
   }
 
-  update<T extends PgTable>(table: T, set: Partial<T["_"]["inferInsert"]>) {
+  update<T extends PgTable>(table: T, set: Partial<T["$inferInsert"]>) {
     return this.db.update(table).set(set);
   }
 
-  insert<T extends PgTable>(table: T, set: T["_"]["inferInsert"]) {
+  insert<T extends PgTable>(table: T, set: T['$inferSelect']) {
     return this.db.insert(table).values(set);
   }
 
