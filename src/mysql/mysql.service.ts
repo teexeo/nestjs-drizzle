@@ -54,11 +54,11 @@ export class DrizzleService<
     return this.db.select(select as SelectedFields).from(from) as any;
   }
 
-  update<T extends MySqlTable>(table: T, set: Partial<T["_"]["inferInsert"]>) {
+  update<T extends MySqlTable>(table: T, set: Partial<T["$inferInsert"]>) {
     return this.db.update(table).set(set);
   }
 
-  insert<T extends MySqlTable>(table: T, set: T["_"]["inferInsert"]) {
+  insert<T extends MySqlTable>(table: T, set: T["$inferInsert"]) {
     return this.db.insert(table).values(set);
   }
 
