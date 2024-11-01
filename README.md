@@ -3,8 +3,7 @@
 ### Todo List
 
 - [x] mysql2
-- [x] postgresjs
-- [ ] node-postgres
+- [x] node-postgres
 - [x] supabase
 - [ ] sqlite
 - [ ] planetscale
@@ -38,49 +37,23 @@ export * from './schemas/users.ts'
 
 ```ts
 import { DrizzleModule } from 'nestjs-drizzle/mysql';
-import * as schema from 'src/drizzle/schema'
 
 @Module({
   imports: [
-    DrizzleModule.forRoot({
-      isGlobal: true,
-      schema,
-      pool: {
-        host: process.env.HOST,
-        port: process.env.PORT,
-        user: process.env.USER,
-        password: process.env.PASSWORD,
-        database: process.env.DATABASE,
-      }
-    }),
+    // in default DrizzleModule gets url from .env DATABASE_URL
+    DrizzleModule.forRoot(),
+    // or
+    DrizzleModule.forRoot({ connectionString: process.env.DATABASE_URL })
   ]
 })
 ```
 
-### for async registeration
+> I recomend to use `global.d.ts` file for env type safety.
 
 ```ts
-import { DrizzleModule } from 'nestjs-drizzle/postgres';
-import * as schema from 'src/drizzle/schema'
+// For quering data
+declare type ISchema = typeof import('your/path/schema');
 
-@Module({
-  imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    DrizzleModule.forAsyncRoot({
-      isGlobal: true,
-      useFactory: async (config: ConfigService) => ({
-        connection: config.get('DATABASE_URL'),
-        schema,
-      }),
-      inject: [ConfigService]
-    }),
-  ]
-})
-```
-
-> I recomend to use `environment.d.ts` file for env type safety.
-
-```ts
 declare namespace NodeJS {
   interface ProcessEnv {
     [key: string]: string | undefined;
@@ -100,7 +73,7 @@ import { isNull } from "drizzle-orm";
 
 @Injectable()
 export class AppService {
-  constructor(private readonly drizzle: DrizzleService) {}
+  constructor(private readonly drizzle: DrizzleService<ISchema>) {}
 
   async getManyUsers() {
     const users = await this.drizzle.get(users, {
@@ -127,7 +100,7 @@ export class AppService {
 ### Other helper functions
 
 ```ts
-// values is basicly set
+// values is basicly drizzle set
 this.drizzle.insert(users, values);
 
 this.drizzle.update(users, values).where(eq(users.id, 10));
@@ -138,7 +111,7 @@ this.drizzle.update(users, {
 
 this.drizzle.delete(users).where(eq(users.id, 10));
 
-this.drizzle.query("users").findFirst();
+this.drizzle.query.users.findFirst();
 ```
 
 ### if you need to other features
@@ -154,18 +127,19 @@ this.drizzle.insert(users, values).$dynamic;
 ### Using query
 
 ```ts
-// first make DrizzleService to type safe
-import * as schema from "src/drizzle/schema";
-import { DrizzleService } from "nestjs-drizzle/mysql";
+import { DrizzleService } from "nestjs-drizzle/postgres";
+import * as schema from '/your/path/schema';
 
 @Injectable()
 export class AppService {
   constructor(
-    private readonly drizzle: DrizzleService<typeof schema> // <- put here <typeof schema>
+    private readonly drizzle: DrizzleService<ISchema> // <- put here <ISchema>
+    // or
+    private readonly drizzle: DrizzleService<typeof schema> // <- or put here <typeof schema>
   ) {}
 
   getUsers() {
-    this.drizzle.query("users").findMany({
+    this.drizzle.query.users.findMany({
       columns: {
         id: true,
         name: true,
@@ -175,9 +149,3 @@ export class AppService {
   }
 }
 ```
-
-### Bugs showcase
-
-> npm ERR! Found: reflect-metadata@0.2.1
-
-in package.json `reflect-metadata` change version to `^0.1.14`
