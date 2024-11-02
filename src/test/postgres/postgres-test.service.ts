@@ -7,6 +7,10 @@ export class PostgresTestService {
   ) { }
 
   async main() {
+    const data = await this.drizzle.get(users, {
+      age: users.age,
+      surname: users.surname,
+    });
     this.drizzle.insert(users, {
       username: 'test'
     })

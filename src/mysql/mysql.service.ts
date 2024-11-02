@@ -3,6 +3,7 @@ import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
 import { Mysql2Options } from "./types";
 import {
   CreateMySqlSelectFromBuilderMode,
+  MySqlColumn,
   MySqlTable,
   SelectedFields,
 } from "drizzle-orm/mysql-core";
@@ -22,36 +23,18 @@ export class DrizzleService<
     }) as MySql2Database<TSchema>;
   }
 
-  get<
-    T extends MySqlTable,
-    TSelect extends SelectedFields,
-    U extends "select" | "without" = "select"
-  >(
-    from: T,
-    select: U extends "select"
-      ? Simplify<T["$inferSelect"]> | TSelect | undefined
-      : keyof Simplify<T["$inferSelect"]>[],
-    type: "select" | "without" = "select"
-  ): CreateMySqlSelectFromBuilderMode<
-    "db",
-    GetSelectTableName<T>,
-    Simplify<TSelect>,
-    "partial",
-    any
-  > {
-    if (type === "without") {
-      const columns = getTableColumns(from);
-      const keysOfSelect = Object.keys(select);
-      const FilteredSelect = Object.keys(columns)
-        .filter((x) => !keysOfSelect.includes(x))
-        .reduce((acc, key) => {
-          acc[key] = columns[key];
-          return acc;
-        }, {}) as SelectedFields;
-
-      return this.db.select(FilteredSelect).from(from) as any;
-    }
+  get<T extends MySqlTable, TSelect extends SelectedFields | Simplify<T['$inferSelect']> | undefined>(from: T, select?: TSelect):
+    CreateMySqlSelectFromBuilderMode<"db", GetSelectTableName<T>, TSelect extends SelectedFields ? Simplify<TSelect> : Simplify<T['_']['columns']>, "partial", any> {
     return this.db.select(select as SelectedFields).from(from) as any;
+  }
+
+  getWithout<T extends MySqlTable, TSelect>(table: T, select: TSelect | Partial<Record<keyof T['_']['columns'], true>>):
+    CreateMySqlSelectFromBuilderMode<"db", GetSelectTableName<T>, Simplify<Omit<T['_']['columns'], keyof TSelect>>, "partial", any> {
+    const columns = getTableColumns(table);
+    const resultColumns = Object.fromEntries(
+      Object.entries(columns).filter(([key]) => !Object.keys(select || {}).includes(key))
+    ) as T["_"]["columns"];
+    return this.get(table, resultColumns);
   }
 
   update<T extends MySqlTable>(table: T, set: Partial<T["$inferInsert"]>) {

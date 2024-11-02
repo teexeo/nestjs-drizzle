@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { Injectable } from "@nestjs/common";
 import { drizzle, NodePgClient, NodePgDatabase } from "drizzle-orm/node-postgres";
-import { Simplify } from "drizzle-orm";
+import { getTableColumns, Simplify } from "drizzle-orm";
 import type { CreatePgSelectFromBuilderMode, PgInsertValue, PgTable, SelectedFields, } from "drizzle-orm/pg-core";
 import { GetSelectTableName } from "drizzle-orm/query-builders/select.types";
 import { PostgresOptions } from './types';
@@ -30,9 +30,18 @@ export class DrizzleService<TSchema extends Record<string, unknown> = Record<str
     }) as NodePgDatabase<TSchema> & { $client: NodePgClient; }
   }
 
-  get<T extends PgTable, TSelect>(from: T, select?: Simplify<T["$inferSelect"]> | TSelect):
+  get<T extends PgTable, TSelect extends SelectedFields | Simplify<T['$inferSelect']> | undefined>(from: T, select?: TSelect):
     CreatePgSelectFromBuilderMode<"db", GetSelectTableName<T>, TSelect extends SelectedFields ? Simplify<TSelect> : Simplify<T['_']['columns']>, "partial"> {
     return this.db.select(select as SelectedFields).from(from) as any;
+  }
+
+  getWithout<T extends PgTable, TSelect extends Partial<Record<keyof T['_']['columns'], true>> | undefined>(table: T, select?: TSelect):
+    CreatePgSelectFromBuilderMode<"db", GetSelectTableName<T>, Simplify<Omit<T['_']['columns'], keyof TSelect>>, "partial"> {
+    const columns = getTableColumns(table);
+    const resultColumns = Object.fromEntries(
+      Object.entries(columns).filter(([key]) => !Object.keys(select || {}).includes(key))
+    ) as T["_"]["columns"];
+    return this.get(table, resultColumns);
   }
 
   update<T extends PgTable>(table: T, set: Partial<T['$inferSelect']>) {

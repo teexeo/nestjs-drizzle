@@ -97,31 +97,28 @@ export class AppService {
 }
 ```
 
-### Other helper functions
+### All function in nestjs-drizzle
 
 ```ts
-// values is basicly drizzle set
+// main drizzle db
+this.drizzle.db;
+// insertion
 this.drizzle.insert(users, values);
-
+this.drizzle.insert(users, values).$dynamic;
+// update
 this.drizzle.update(users, values).where(eq(users.id, 10));
 // Increment | Decrement
-this.drizzle.update(users, {
-  age: increment(users.age, 20)
-}).where(eq(users.id, 10));
-
+this.drizzle.update(users, { age: increment(users.age, 20) }).where(eq(users.id, 10));
+// Delete
 this.drizzle.delete(users).where(eq(users.id, 10));
-
+// Query
 this.drizzle.query.users.findFirst();
-```
-
-### if you need to other features
-
-```ts
-this.drizzle.db; // main db
-
-this.drizzle.delete(users).where(eq(users.id, 10)).prepare();
-
-this.drizzle.insert(users, values).$dynamic;
+this.drizzle.query.users.findMany();
+// Get
+this.drizzle.get(users);
+this.drizzle.get(users, { id: users.id, username: users.username })
+// or without function
+this.drizzle.getWithout(users, { password: true })
 ```
 
 ### Using query
