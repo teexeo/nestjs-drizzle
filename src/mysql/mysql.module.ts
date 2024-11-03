@@ -1,17 +1,23 @@
 import { DynamicModule, Module } from "@nestjs/common";
 import { DrizzleService } from "./mysql.service";
 import { Mysql2Options } from "./types";
+import "dotenv/config";
+import { Connection, Pool } from "mysql2";
+import mysql from "mysql2";
+import { drizzle } from "drizzle-orm/mysql2";
 
 @Module({})
 export class DrizzleModule {
   static forRoot(options: Mysql2Options): DynamicModule {
-    const mysql = require("mysql2/promise");
-    const connection = mysql.createPool(options.pool);
+    let client: Connection | Pool;
+
+    if (options.connection) client = mysql.createConnection(options.connection)
+    else client = mysql.createPool(options.pool);
 
     return this.createModule(
       {
         provide: DrizzleService,
-        useFactory: () => new DrizzleService(options.schema, connection),
+        useFactory: () => new DrizzleService(drizzle(client, options.schema)),
       },
     );
   }
@@ -19,7 +25,7 @@ export class DrizzleModule {
   private static createModule(
     provider: {
       provide: typeof DrizzleService;
-      useFactory: () => | Promise<DrizzleService<Record<string, never>>> | DrizzleService<Record<string, never>>;
+      useFactory: () => DrizzleService<Record<string, never>>;
     },
   ) {
     return {

@@ -1,9 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
-import { Mysql2Options } from "./types";
+import { type MySql2Database } from "drizzle-orm/mysql2";
 import {
   CreateMySqlSelectFromBuilderMode,
-  MySqlColumn,
   MySqlTable,
   SelectedFields,
 } from "drizzle-orm/mysql-core";
@@ -14,26 +12,19 @@ import { GetSelectTableName } from "drizzle-orm/query-builders/select.types";
 export class DrizzleService<
   TSchema extends Record<string, unknown> = Record<string, never>
 > {
-  public db: MySql2Database<TSchema>;
-
-  constructor(schema: Mysql2Options["schema"], connection: any) {
-    this.db = drizzle(connection, {
-      mode: "default",
-      schema,
-    }) as MySql2Database<TSchema>;
-  }
+  constructor(public db: MySql2Database<TSchema>) { }
 
   get<T extends MySqlTable, TSelect extends SelectedFields | Simplify<T['$inferSelect']> | undefined>(from: T, select?: TSelect):
     CreateMySqlSelectFromBuilderMode<"db", GetSelectTableName<T>, TSelect extends SelectedFields ? Simplify<TSelect> : Simplify<T['_']['columns']>, "partial", any> {
     return this.db.select(select as SelectedFields).from(from) as any;
   }
 
-  getWithout<T extends MySqlTable, TSelect>(table: T, select: TSelect | Partial<Record<keyof T['_']['columns'], true>>):
+  getWithout<T extends MySqlTable, TSelect>(table: T, select?: TSelect | Partial<Record<keyof T['_']['columns'], true>>):
     CreateMySqlSelectFromBuilderMode<"db", GetSelectTableName<T>, Simplify<Omit<T['_']['columns'], keyof TSelect>>, "partial", any> {
     const columns = getTableColumns(table);
-    const resultColumns = Object.fromEntries(
+    const resultColumns = select ? Object.fromEntries(
       Object.entries(columns).filter(([key]) => !Object.keys(select || {}).includes(key))
-    ) as T["_"]["columns"];
+    ) as T["_"]["columns"] : columns;
     return this.get(table, resultColumns);
   }
 

@@ -19,7 +19,7 @@ export class DrizzleService<TSchema extends Record<string, unknown> = Record<str
     const { schema, connectionString, ...connection } = options;
 
     if (options?.driver == 'pool') {
-      const pool = new Pool({ connectionString: databaseWithDefault(connectionString), });
+      const pool = new Pool({ connectionString: databaseWithDefault(connectionString) });
       this.db = drizzle({ client: pool, schema, connection }) as NodePgDatabase<TSchema> & { $client: Pool; };
       return;
     }

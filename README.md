@@ -36,14 +36,26 @@ export * from './schemas/users.ts'
 ### app.module.ts
 
 ```ts
-import { DrizzleModule } from 'nestjs-drizzle/mysql';
+import { DrizzleModule } from 'nestjs-drizzle/postgres';
+import * as schema from '/path/schema';
 
 @Module({
   imports: [
     // in default DrizzleModule gets url from .env DATABASE_URL
-    DrizzleModule.forRoot(),
+    DrizzleModule.forRoot({ schema }),
     // or
-    DrizzleModule.forRoot({ connectionString: process.env.DATABASE_URL })
+    DrizzleModule.forRoot({ schema, connectionString: process.env.DATABASE_URL })
+  ]
+})
+
+// For mysql
+import { DrizzleModule } from 'nestjs-drizzle/mysql';
+import * as schema from '/path/schema';
+
+@Module({
+  imports: [
+    DrizzleModule.forRoot({ schema, connection: { uri: process.env.DATABASE_URL } }),
+    DrizzleModule.forRoot({ schema, pool: { ... } })
   ]
 })
 ```
